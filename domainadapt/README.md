@@ -15,6 +15,9 @@ We are no longer dealing with time series, since the signals are very sparse.
 We are no longer dealing with a single data type. This is a mix of many different types of data. Somehow everything
 needs to be projected onto the same dimension and be considered together.
 
+#### Implement sliding window
+Sliding window is a great data augmentation and the only natural way to interpret each EHR sequence.
+
 ## C-LSTM and attention
 
 Most likely we will need to adapt LSTM to the EHR domain. EHR spans a very long period of time, and attention can be
