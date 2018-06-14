@@ -2,11 +2,16 @@
 # we will calculate the average absolute value to see how active backprop is for each weight in the matrix
 # I am interested in whether I can modify the backprop method so that I can reinitialize the less active weights.
 
-import pathsetup
+# from autoprune import pathsetup
+import cv2
 import torch
 from torch.autograd import Variable
 import sys
-from utee import selector
+
+for i, j in enumerate(sys.path):
+    print(i, j)
+
+from pretrained.utee import selector
 model_raw, ds_fetcher, is_imagenet = selector.select('mnist')
 ds_val = ds_fetcher(batch_size=10, train=False, val=True)
 
