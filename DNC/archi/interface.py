@@ -1,5 +1,5 @@
 import torch.nn as nn
-import archi.param as param
+import DNC.archi.param as param
 import torch.nn.functional as F
 
 class Interface(nn.Module):
@@ -18,7 +18,7 @@ class Interface(nn.Module):
         # Read keys, each W dimensions, [W*R] in total
         # no processing needed
         # this is the address keys, not the contents
-        read_keys=interface_input[:,0:last_index].view(param.bs,param.W,param.R)
+        read_keys=interface_input[:,0:last_index].contiguous().view(param.bs,param.W,param.R)
 
         # Read strengths, [R]
         # 1 to infinity

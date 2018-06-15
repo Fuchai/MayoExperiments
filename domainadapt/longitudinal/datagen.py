@@ -1,6 +1,3 @@
-# adapted from github.com/Mostafa-Samir/DNC-tensorflow
-# added padding functionalities for batch_processing
-
 import pickle
 import numpy as np
 from shutil import rmtree
@@ -13,26 +10,6 @@ from threading import Thread
 import time
 import codecs
 
-def babi_command(task, sets, write_to_disk=True,train=True, files_count=1):
-    # this command is run on my remote interpreter
-    os.chdir("./data")
-    for i in range(files_count):
-        if write_to_disk:
-            if train:
-                babiGen="/home/jasonhu/Git/distro/install/bin/babi-tasks "+str(task)+" "+str(sets)+" babi_"+str(i)+"_train.txt"
-            else:
-                babiGen="/home/jasonhu/Git/distro/install/bin/babi-tasks "+str(task)+" "+str(sets)+" babi_"+str(i)+"_test.txt"
-        else:
-            babiGen="/home/jasonhu/Git/distro/install/bin/babi-tasks "+str(task)+" "+str(sets)
-
-        subprocess.Popen(babiGen.split(), stdout=subprocess.PIPE)
-    os.chdir("../")
-
-def list_of_babi(task, sets):
-    raw_output=babi_command(task, sets).decode("utf-8")
-    raw_splitted=raw_output.split('\n')
-    babi_sets=[raw_splitted[15*i:(15*i+15)] for i in range(sets)]
-    return babi_sets
 
 def create_dictionary(files_list):
     """
@@ -247,71 +224,6 @@ def write_babi_with_text(story_limit=150):
     if joint_train:
         pickle.dump(joint_train_data, open(join(train_data_dir, 'train.pkl'), 'wb'))
 
-def write_babi_to_disk(task, sets, train_files_count=1, story_limit=150):
-    '''
-    calls raw babi commands
-    pickles train and test data
-    :param task:
-    :param sets:
-    :param train_files_count:
-    :return:
-    '''
-    babi_command(task,sets,True,train=True, files_count=train_files_count)
-    babi_command(task,sets,True,train=False, files_count=int(train_files_count/5))
-
-    task_dir = os.path.dirname(abspath(__file__))
-    data_dir = join(task_dir,'data')
-    joint_train = True
-    files_list = []
-
-    if not exists(join(task_dir, 'data')):
-        mkdir(join(task_dir, 'data'))
-
-    if data_dir is None:
-        raise ValueError("data_dir argument cannot be None")
-
-    for entryname in listdir(data_dir):
-        entry_path = join(data_dir, entryname)
-        if isfile(entry_path):
-            files_list.append(entry_path)
-
-    lexicon_dictionary = create_dictionary(files_list)
-    lexicon_count = len(lexicon_dictionary)
-
-    # append used punctuation to dictionary
-    lexicon_dictionary['?'] = lexicon_count
-    lexicon_dictionary['.'] = lexicon_count + 1
-    lexicon_dictionary['-'] = lexicon_count + 2
-
-    encoded_files, stories_lengths = encode_data(files_list, lexicon_dictionary, story_limit)
-
-    processed_data_dir = join(task_dir, 'data', basename(normpath(data_dir)))
-    train_data_dir = join(processed_data_dir, 'train')
-    test_data_dir = join(processed_data_dir, 'test')
-    if exists(processed_data_dir) and isdir(processed_data_dir):
-        rmtree(processed_data_dir)
-
-    mkdir(processed_data_dir)
-    mkdir(train_data_dir)
-    mkdir(test_data_dir)
-
-    pickle.dump(lexicon_dictionary, open(join(processed_data_dir, 'lexicon-dict.pkl'), 'wb'))
-
-    joint_train_data = []
-
-    for filename in encoded_files:
-        if filename.endswith("test.txt"):
-            pickle.dump(encoded_files[filename], open(join(test_data_dir, "test" + '.pkl'), 'wb'))
-        elif filename.endswith("train.txt"):
-            if not joint_train:
-                pickle.dump(encoded_files[filename], open(join(train_data_dir, basename(filename) + '.pkl'), 'wb'))
-            else:
-                joint_train_data.extend(encoded_files[filename])
-
-    if joint_train:
-        pickle.dump(joint_train_data, open(join(train_data_dir, 'train.pkl'), 'wb'))
-
-
 def gendata(batch_size, validate=False):
     '''
     The main function to generate data.
@@ -320,7 +232,6 @@ def gendata(batch_size, validate=False):
     :param story_limit: padding the input/output vectors to length.
     :return:
     '''
-
 
     dirname = os.path.dirname(__file__)
 
@@ -377,8 +288,6 @@ class PreGenData():
         self.next_validate=gendata(self.batch_size,True)
         self.val_ready=True
 
-if __name__ == '__main__':
-    write_babi_to_disk(task=10, sets=1000, train_files_count=20, story_limit=150)
-    pgd=PreGenData(param.bs)
-    input_data, target_output, ignore_index=pgd.get_train()
-    print("done")
+
+if __name__=="__main__":
+    pass

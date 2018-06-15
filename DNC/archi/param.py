@@ -6,7 +6,8 @@ Controller parameters
 '''
 # input vector size x_t
 # dataset specific
-x=88
+# the program should automatically set it up.
+x=None
 
 # single hidden unit output size h^l_t
 # state size
@@ -21,7 +22,7 @@ L=64
 
 # Controller output v_t size
 # dataset specific
-v_t=88
+v_t=None
 
 # Memory location width
 # Memory read heads count R
@@ -36,7 +37,7 @@ N=32
 
 # I am going to bake batch_processing in the DNC.
 # This is going to be a very tough week.
-bs=24
+bs=64
 
 global_reset_flag=False
 
