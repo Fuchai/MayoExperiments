@@ -6,7 +6,8 @@ Controller parameters
 '''
 # input vector size x_t
 # dataset specific
-x=88
+# the program should automatically set it up.
+x=None
 
 # single hidden unit output size h^l_t
 # state size
@@ -21,7 +22,7 @@ L=64
 
 # Controller output v_t size
 # dataset specific
-v_t=88
+v_t=None
 
 # Memory location width
 # Memory read heads count R
@@ -34,15 +35,14 @@ E_t=W*R+3*W+5*R+3
 # Total memory block (N, W)
 N=32
 
-# I am going to bake batch_processing in the DNC.
-# This is going to be a very tough week.
-bs=24
+# this is the batch size
+bs=16
 
-global_reset_flag=False
+#global_reset_flag=False
 
 
 '''
-Hyperarameters have been tuned for Nvidia 1080. Bottleneck by memory.
+Hyperarameters have been tuned for Nvidia V100. Bottleneck by memory.
 |-------------------------------+----------------------+----------------------+
 | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |

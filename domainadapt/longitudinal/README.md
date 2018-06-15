@@ -11,6 +11,13 @@ To use DNC or MAC, we need to
 #### Adapt longitudinal data
 We are no longer dealing with time series, since the signals are very sparse.
 
+* I am going to turn a time series to be longitudinal, insert
+arbitrary blanks that do not contain any information.
+
+* At the moment, all the inputs will have te same input lenghts. Insertion
+of longitudinal blanks will need to be arbitrary in the end, but right now,
+I will insert a fixed number of blanks at sampled locations.
+
 #### Deal with multi-faceted data
 We are no longer dealing with a single data type. This is a mix of many different types of data. Somehow everything
 needs to be projected onto the same dimension and be considered together.
