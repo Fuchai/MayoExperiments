@@ -132,7 +132,7 @@ class Memory(nn.Module):
 
         ret= (self.usage_vector+write_wighting-self.usage_vector*write_wighting)*memory_retention
 
-        self.usage_vector.data=ret
+        self.usage_vector.data=ret.data
         return ret
 
 
@@ -154,7 +154,7 @@ class Memory(nn.Module):
         sorted, indices= self.usage_vector.sort(dim=1)
         cum_prod=torch.cumprod(sorted,1)
         # notice the index on the product
-        cum_prod=torch.cat([torch.ones(param.bs,1).cuda(),cum_prod],1)[:,:-1]
+        cum_prod=torch.cat((Variable(torch.ones(param.bs,1).cuda()),cum_prod),1)[:,:-1]
         sorted_inv=1-sorted
         allocation_weighting=sorted_inv*cum_prod
         # to shuffle back in place
@@ -190,7 +190,8 @@ class Memory(nn.Module):
         # Took me 3 hours.
         # sum_ww=sum(write_weighting,1)
         sum_ww=torch.sum(write_weighting,dim=1)
-        self.precedence_weighting.data=(1-sum_ww).unsqueeze(1)*self.precedence_weighting+write_weighting
+        temp=(1-sum_ww).unsqueeze(1)*self.precedence_weighting+write_weighting
+        self.precedence_weighting.data=temp.data
         test_simplex_bound(self.precedence_weighting,1)
         return self.precedence_weighting
 
@@ -206,7 +207,8 @@ class Memory(nn.Module):
         ww_i=write_weighting.unsqueeze(2).expand(-1,-1,param.N)
         p_j=self.precedence_weighting.unsqueeze(1).expand(-1,param.N,-1)
         batch_temporal_memory_linkage=self.temporal_memory_linkage.expand(param.bs,-1,-1)
-        self.temporal_memory_linkage.data= (1 - ww_j - ww_i) * batch_temporal_memory_linkage + ww_i * p_j
+        temp=(1 - ww_j - ww_i) * batch_temporal_memory_linkage + ww_i * p_j
+        self.temporal_memory_linkage.data=temp.data
         test_simplex_bound(self.temporal_memory_linkage,1)
         test_simplex_bound(self.temporal_memory_linkage,2)
         return self.temporal_memory_linkage
@@ -257,7 +259,7 @@ class Memory(nn.Module):
         read_modes=read_modes.unsqueeze(3)
         # dimension (bs,N,R)
         read_weightings = torch.matmul(all_weightings, read_modes).squeeze(3).transpose(1,2)
-        self.last_read_weightings.data=read_weightings
+        self.last_read_weightings.data=read_weightings.data
         # last read weightings
         test_simplex_bound(self.last_read_weightings,1)
         return read_weightings
@@ -283,9 +285,9 @@ class Memory(nn.Module):
         :return:
         '''
         term1_2=torch.matmul(write_weighting.unsqueeze(2),erase_vector.unsqueeze(1))
-        term1=self.memory.unsqueeze(0)*(torch.ones((param.bs,param.N,param.W)).cuda()-term1_2)
+        term1=self.memory.unsqueeze(0)*(Variable(torch.ones((param.bs,param.N,param.W))).cuda()-term1_2)
         term2=torch.matmul(write_weighting.unsqueeze(2),write_vector.unsqueeze(1))
-        self.memory.data=torch.mean(term1+term2, dim=0)
+        self.memory.data=torch.mean(term1+term2, dim=0).data
 
     def forward(self,read_keys, read_strengths, write_key, write_strength,
                 erase_vector, write_vector, free_gates, allocation_gate,

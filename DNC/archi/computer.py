@@ -7,6 +7,13 @@ import DNC.archi.param as param
 import pdb
 from torch.nn.parameter import Parameter
 
+# def isnan(tensor):
+#     # defined to cater to pytorch 0.3.1, just source
+#     # doesn't work. not gonna waste time
+#     if not isinstance(tensor, torch.Tensor):
+#         raise ValueError("The argument is not a tensor")
+#     return tensor != tensor
+
 class Computer(nn.Module):
 
     def __init__(self):
@@ -20,29 +27,29 @@ class Computer(nn.Module):
         input_x_t=torch.cat([input,self.last_read_vector.view(param.bs,-1)],1)
         output, interface=self.controller(input_x_t)
         interface_output_tuple=self.interface(interface)
-        self.last_read_vector.data=self.memory(*interface_output_tuple)
-        if torch.isnan(self.last_read_vector).any():
-            read_keys, read_strengths, write_key, write_strength, \
-            erase_vector, write_vector, free_gates, allocation_gate, \
-            write_gate, read_modes = interface_output_tuple
-            allocation_weighting = self.memory.allocation_weighting()
-            write_weighting = self.memory.write_weighting(write_key, write_strength,
-                                                   allocation_gate, write_gate, allocation_weighting)
-            self.memory.write_to_memory(write_weighting, erase_vector, write_vector)
-            # update some
-            memory_retention = self.memory.memory_retention(free_gates)
-            self.memory.update_usage_vector(write_weighting, memory_retention)
-            self.memory.update_temporal_linkage_matrix(write_weighting)
-            self.memory.update_precedence_weighting(write_weighting)
-
-            forward_weighting = self.memory.forward_weighting()
-            backward_weighting = self.memory.backward_weighting()
-
-            read_weightings = self.memory.read_weightings(forward_weighting, backward_weighting, read_keys, read_strengths,
-                                                   read_modes)
-            # read from memory last, a new modification.
-            read_vectors = self.memory.read_memory(read_weightings)
-            raise ValueError("nan is found.")
+        self.last_read_vector.data=self.memory(*interface_output_tuple).data
+        # if isnan(self.last_read_vector.data).any():
+        #     read_keys, read_strengths, write_key, write_strength, \
+        #     erase_vector, write_vector, free_gates, allocation_gate, \
+        #     write_gate, read_modes = interface_output_tuple
+        #     allocation_weighting = self.memory.allocation_weighting()
+        #     write_weighting = self.memory.write_weighting(write_key, write_strength,
+        #                                            allocation_gate, write_gate, allocation_weighting)
+        #     self.memory.write_to_memory(write_weighting, erase_vector, write_vector)
+        #     # update some
+        #     memory_retention = self.memory.memory_retention(free_gates)
+        #     self.memory.update_usage_vector(write_weighting, memory_retention)
+        #     self.memory.update_temporal_linkage_matrix(write_weighting)
+        #     self.memory.update_precedence_weighting(write_weighting)
+        #
+        #     forward_weighting = self.memory.forward_weighting()
+        #     backward_weighting = self.memory.backward_weighting()
+        #
+        #     read_weightings = self.memory.read_weightings(forward_weighting, backward_weighting, read_keys, read_strengths,
+        #                                            read_modes)
+        #     # read from memory last, a new modification.
+        #     read_vectors = self.memory.read_memory(read_weightings)
+        #     raise ValueError("nan is found.")
         return output
 
     def reset_parameters(self):

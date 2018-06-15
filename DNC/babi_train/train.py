@@ -112,7 +112,7 @@ def run_one_story(computer, optimizer, story_length, batch_size, pgd, validate=F
 
     with torch.no_grad if validate else dummy_context_mgr():
 
-        story_output = torch.Tensor(batch_size, story_length, param.x).cuda()
+        story_output = Variable(torch.Tensor(batch_size, story_length, param.x).cuda())
         computer.new_sequence_reset()
         # a single story
         for timestep in range(story_length):
@@ -123,15 +123,15 @@ def run_one_story(computer, optimizer, story_length, batch_size, pgd, validate=F
 
             # usually batch does not interfere with each other's logic
             batch_output=computer(batch_input_of_same_timestep)
-            if torch.isnan(batch_output).any():
-                pdb.set_trace()
-                raise ValueError("nan is found in the batch output.")
+            # if torch.isnan(batch_output).any():
+            #     pdb.set_trace()
+            #     raise ValueError("nan is found in the batch output.")
             story_output[:, timestep,:] = batch_output
 
         target_output=target_output.view(-1)
         story_output=story_output.view(-1,param.x)
         story_output=story_output[critical_index,:]
-        target_output=target_output[critical_index].long()
+        target_output=Variable(target_output[critical_index].long())
 
         story_loss = criterion(story_output, target_output)
         if not validate:
@@ -151,7 +151,7 @@ def train(computer, optimizer, story_length, batch_size, pgd, starting_epoch, ep
 
             train_story_loss=run_one_story(computer, optimizer, story_length, batch_size, pgd)
             print("learning. epoch: %4d, batch number: %4d, training loss: %.4f" %
-                  (epoch, batch, train_story_loss.item()))
+                  (epoch, batch, train_story_loss.data[0]))
             running_loss+=train_story_loss
             val_freq=16
             if batch%val_freq==val_freq-1:
