@@ -2,11 +2,12 @@ from .training.datagen import PreGenData
 from ..archi.computer import Computer
 import torch
 import numpy
-import archi.param as param
+import DNC.archi.param as param
 import pdb
 from pathlib import Path
 import os
 from os.path import abspath
+from torch.autograd import Variable
 import gc
 import time
 # task 10 of babi
@@ -100,7 +101,7 @@ def run_one_story(computer, optimizer, story_length, batch_size, pgd, validate=F
     else:
         input_data, target_output, critical_index=pgd.get_validate()
 
-    input_data=torch.Tensor(input_data).cuda()
+    input_data=Variable(torch.Tensor(input_data).cuda())
     target_output=torch.Tensor(target_output).cuda()
     stairs=torch.Tensor(numpy.arange(0,param.bs*story_length,story_length))
     critical_index=critical_index+stairs.unsqueeze(1)
@@ -141,7 +142,7 @@ def run_one_story(computer, optimizer, story_length, batch_size, pgd, validate=F
 
     return story_loss
 
-def train(computer, optimizer, story_length, batch_size, pgd, starting_epoch):
+def train(computer, optimizer, story_length, batch_size, pgd, starting_epoch, epochs_count, epoch_batches_count):
     for epoch in range(starting_epoch,epochs_count):
 
         running_loss=0
@@ -176,7 +177,8 @@ def runmain():
     starting_epoch=-1
 
     # if load model
-    computer, optim, starting_epoch = load_model(computer)
+    if False:
+        computer, optim, starting_epoch = load_model(computer)
 
     computer=computer.cuda()
     if optim is None:
@@ -186,7 +188,7 @@ def runmain():
         optimizer=torch.optim.Adadelta(computer.parameters(),lr=lr)
     
     # starting with the epoch after the loaded one
-    train(computer,optimizer,story_limit, batch_size, pgd, int(starting_epoch)+1)
+    train(computer,optimizer,story_limit, batch_size, pgd, int(starting_epoch)+1, epochs_count, epoch_batches_count)
 
 if __name__=="__main__":
     runmain()

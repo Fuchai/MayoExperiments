@@ -8,7 +8,7 @@ import os
 from os import listdir, mkdir
 from os.path import join, isfile, isdir, dirname, basename, normpath, abspath, exists
 import subprocess
-import archi.param as param
+import DNC.archi.param as param
 from threading import Thread
 import time
 import codecs

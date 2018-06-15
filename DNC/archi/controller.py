@@ -1,13 +1,14 @@
 # reference Methods, controller network
 
-from archi.param import *
+from DNC.archi.param import *
 import torch
 import torch.nn as nn
 from torch.nn.parameter import Parameter
-import archi.param as param
+import DNC.archi.param as param
 import math
 from torch.nn.modules.rnn import LSTM
 from torch.nn.parameter import Parameter
+from torch.autograd import Variable
 
 
 
@@ -31,8 +32,8 @@ class Controller(nn.Module):
         :param input_x: raw input concatenated with flattened memory input
         :return:
         '''
-        hidden_previous_layer=torch.Tensor(param.bs,param.h).zero_().cuda()
-        hidden_this_timestep=torch.Tensor(param.bs,param.L,param.h).cuda()
+        hidden_previous_layer=Variable(torch.Tensor(param.bs,param.h).zero_().cuda())
+        hidden_this_timestep=Variable(torch.Tensor(param.bs,param.L,param.h).cuda())
         for i in range(param.L):
             hidden_output=self.RNN_list[i](input_x, self.hidden_previous_timestep[:,i,:],
                                            hidden_previous_layer)
@@ -43,7 +44,7 @@ class Controller(nn.Module):
         output=self.W_y(flat)
         interface=self.W_E(flat)
         # TODO assign warning
-        self.hidden_previous_timestep.data=hidden_this_timestep
+        self.hidden_previous_timestep.data=hidden_this_timestep.data
         return output, interface
 
     def reset_parameters(self):
@@ -100,8 +101,7 @@ class RNN_Unit(nn.Module):
         output_gate=torch.sigmoid(self.W_output(semicolon_input))
         new_hidden=output_gate*torch.tanh(new_state)
 
-        # TODO Warning: needs to assign, not sure if this is right
-        self.old_state.data=new_state
+        self.old_state.data=new_state.data
 
         return new_hidden
 
