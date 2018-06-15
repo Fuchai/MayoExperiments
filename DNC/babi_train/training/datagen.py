@@ -11,7 +11,7 @@ import subprocess
 import archi.param as param
 from threading import Thread
 import time
-
+import codecs
 
 def babi_command(task, sets, write_to_disk=True,train=True, files_count=1):
     # this command is run on my remote interpreter
@@ -52,7 +52,7 @@ def create_dictionary(files_list):
 
 
     for indx, filename in enumerate(files_list):
-        with open(filename, 'r') as fobj:
+        with codecs.open(filename, 'r',encoding='utf-8',errors='ignore') as fobj:
             for line in fobj:
 
                 # first seperate . and ? away from words into seperate lexicons

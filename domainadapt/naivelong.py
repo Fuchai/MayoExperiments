@@ -4,6 +4,3 @@
 import DNC.babi_train.training.datagen as datagen
 
 datagen.write_babi_with_text()
-
-
-asdf
