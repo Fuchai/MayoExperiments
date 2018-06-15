@@ -1,5 +1,5 @@
-from .training.datagen import PreGenData
-from ..archi.computer import Computer
+from babi_train.training.datagen import PreGenData
+from archi.computer import Computer
 import torch
 import numpy
 import archi.param as param
@@ -165,7 +165,10 @@ def train(computer, optimizer, story_length, batch_size, pgd, starting_epoch):
         save_model(computer, optimizer, epoch)
         print("model saved for epoch ", epoch)
 
-def runmain():
+
+
+if __name__=="__main__":
+
     story_limit=150
     epoch_batches_count=64
     epochs_count=1024
@@ -187,6 +190,3 @@ def runmain():
     
     # starting with the epoch after the loaded one
     train(computer,optimizer,story_limit, batch_size, pgd, int(starting_epoch)+1)
-
-if __name__=="__main__":
-    runmain()

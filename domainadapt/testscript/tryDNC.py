@@ -1,4 +1,4 @@
-from .DNC.archi.controller import Controller
+from domainadapt.DNC.archi.controller import Controller
 
 
 ctrl=Controller()

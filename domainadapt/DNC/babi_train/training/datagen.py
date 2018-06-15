@@ -192,60 +192,6 @@ def prepare_sample(sample, target_code, word_space_size, batch_size):
         critical_index
     )
 
-def write_babi_with_text(story_limit=150):
-
-    task_dir = os.path.dirname(abspath(__file__))
-    data_dir = join(task_dir,'data')
-    joint_train = True
-    files_list = []
-
-    if not exists(join(task_dir, 'data')):
-        mkdir(join(task_dir, 'data'))
-
-    if data_dir is None:
-        raise ValueError("data_dir argument cannot be None")
-
-    for entryname in listdir(data_dir):
-        entry_path = join(data_dir, entryname)
-        if isfile(entry_path):
-            files_list.append(entry_path)
-
-    lexicon_dictionary = create_dictionary(files_list)
-    lexicon_count = len(lexicon_dictionary)
-
-    # append used punctuation to dictionary
-    lexicon_dictionary['?'] = lexicon_count
-    lexicon_dictionary['.'] = lexicon_count + 1
-    lexicon_dictionary['-'] = lexicon_count + 2
-
-    encoded_files, stories_lengths = encode_data(files_list, lexicon_dictionary, story_limit)
-
-    processed_data_dir = join(task_dir, 'data', basename(normpath(data_dir)))
-    train_data_dir = join(processed_data_dir, 'train')
-    test_data_dir = join(processed_data_dir, 'test')
-    if exists(processed_data_dir) and isdir(processed_data_dir):
-        rmtree(processed_data_dir)
-
-    mkdir(processed_data_dir)
-    mkdir(train_data_dir)
-    mkdir(test_data_dir)
-
-    pickle.dump(lexicon_dictionary, open(join(processed_data_dir, 'lexicon-dict.pkl'), 'wb'))
-
-    joint_train_data = []
-
-    for filename in encoded_files:
-        if filename.endswith("test.txt"):
-            pickle.dump(encoded_files[filename], open(join(test_data_dir, "test" + '.pkl'), 'wb'))
-        elif filename.endswith("train.txt"):
-            if not joint_train:
-                pickle.dump(encoded_files[filename], open(join(train_data_dir, basename(filename) + '.pkl'), 'wb'))
-            else:
-                joint_train_data.extend(encoded_files[filename])
-
-    if joint_train:
-        pickle.dump(joint_train_data, open(join(train_data_dir, 'train.pkl'), 'wb'))
-
 def write_babi_to_disk(task, sets, train_files_count=1, story_limit=150):
     '''
     calls raw babi commands
